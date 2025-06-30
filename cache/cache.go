@@ -40,11 +40,15 @@ func New[T any](cfg Config) *Cache[T] {
 	return &Cache[T]{
 		items: make(map[string]*item[T]),
 		ttl:   cfg.TTL,
+		empty: *new(T),
+		mux:   sync.RWMutex{},
 	}
 }
 
 func (c *Cache[T]) newItem(value T, opts ...Option) *item[T] {
-	o := options{}
+	o := options{
+		validUntil: time.Time{},
+	}
 	if c.ttl > 0 {
 		o.validUntil = time.Now().Add(c.ttl)
 	}
@@ -145,12 +149,12 @@ func (c *Cache[T]) Drain() map[string]T {
 	t := time.Now()
 
 	c.mux.Lock()
-	copy := c.items
-	c.items = make(map[string]*item[T], len(copy))
+	cpy := c.items
+	c.items = make(map[string]*item[T], len(cpy))
 	c.mux.Unlock()
 
-	items := make(map[string]T, len(copy))
-	for key, item := range copy {
+	items := make(map[string]T, len(cpy))
+	for key, item := range cpy {
 		if item.isExpired(t) {
 			continue
 		}

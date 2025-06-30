@@ -1,6 +1,8 @@
+//nolint:gocognit
 package cache_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -255,7 +257,7 @@ func BenchmarkCache_Get(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		value, err := cache.Get(testKey)
 		if err != nil {
 			b.Fatalf("Unexpected error: %v", err)
@@ -273,9 +275,9 @@ func BenchmarkCache_GetNonExistent(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_, err := c.Get(nonExistentKey)
-		if err != cache.ErrKeyNotFound {
+		if !errors.Is(err, cache.ErrKeyNotFound) {
 			b.Fatalf("Unexpected error: got %v, want %v", err, cache.ErrKeyNotFound)
 		}
 	}
@@ -312,7 +314,7 @@ func BenchmarkCache_Set(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		key := fmt.Sprintf("key%d", i)
 		value := fmt.Sprintf("value%d", i)
 		err := cache.Set(key, value)
@@ -335,7 +337,7 @@ func BenchmarkCache_SetExisting(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for i := range b.N {
 		newValue := fmt.Sprintf("value%d", i)
 		err := cache.Set(testKey, newValue)
 		if err != nil {
