@@ -1,6 +1,7 @@
 package slices
 
-// Associate generates a map by associating keys and values from the given slice using the provided key and value functions.
+// Associate generates a map by associating keys and values from the given
+// slice using the provided key and value functions.
 //
 // slice: The input slice of type T.
 // fk: The key function that maps elements of type T to keys of type K.
